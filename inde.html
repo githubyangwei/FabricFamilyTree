@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<canvas id="c" width="450" height="450" style="border:1px solid #aaa"></canvas>
+
+
+</body>
+<script type="application/javascript" src="https://ss1.bdstatic.com/5eN1bjq8AAUYm2zgoY3K/r/www/cache/static/protocol/https/jquery/jquery-1.10.2.min_65682a2.js"></script>
+<script type="application/javascript" src="dist/fabric.min.js"></script>
+<script>
+
+
+
+        var canvas = this.__canvas = new fabric.Canvas('c');
+        var red = new fabric.Rect({
+            top: 100, left: 0, width: 80, height: 50, fill: 'red' });
+        var blue = new fabric.Rect({
+            top: 0, left: 100, width: 50, height: 70, fill: 'blue' });
+        var green = new fabric.Rect({
+            top: 100, left: 100, width: 60, height: 60, fill: 'green' });
+        fabric.Object.prototype.transparentCorners = false;
+        var group = new fabric.Group([ red, blue, green ], {
+            left: 0,
+            top: 0,
+            angle: -10
+        });
+        canvas.add(group);
+
+        green.on('selected', function(e) {
+            console.log(e);
+        });
+
+
+
+        var scale=1;
+
+        function handle(delta) {
+            var s = delta + ": ";
+            if (delta <0)
+                scale-=0.1;
+            else
+                scale+=0.1;
+            canvas.setZoom(scale);
+        }//from www.fengfly.com
+        function wheel(event){
+            var delta = 0;
+            if (!event) event = window.event;
+            if (event.wheelDelta) {
+                delta = event.wheelDelta/120;
+                if (window.opera) delta = -delta;
+            } else if (event.detail) {
+                delta = -event.detail/3;
+            }
+            if (delta)
+                handle(delta);
+        }
+        $('.canvas-container').on('mouseenter',function () {
+            windowScroll()
+        }).on('mouseout',function () {
+            noScroll()
+        })
+
+        function windowScroll() {
+            if (window.addEventListener) window.addEventListener('DOMMouseScroll', wheel, false);
+            window.onmousewheel = document.onmousewheel = wheel;
+        }
+
+        function noScroll() {
+            if (window.addEventListener) window.addEventListener('DOMMouseScroll', function(){}, false);
+            window.onmousewheel = document.onmousewheel = function(){};
+        }
+
+
+</script>
+</html>
