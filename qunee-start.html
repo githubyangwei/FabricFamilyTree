@@ -13,7 +13,7 @@
 <div style="position: relative;width: 800px;">
     <div style="position: absolute; width: 800px;height:600px; top: 0px; bottom: 0px;border: 1px solid #ccc;" id="canvas"></div>
 
-    <div id="overview" style="width: 150px;height: 120px;box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.2);position: absolute;right: 5px;top: 5px;background-color: #FFF;"></div>
+    <div id="overview" style="width: 150px;height: 120px;box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.2);position: absolute;right: -160px;top: 5px;background-color: #FFF;"></div>
 
 </div>
 
@@ -25,8 +25,115 @@
 <script type="application/javascript" src="resource/commons/common.js"></script>
 <script>
 
+    //数据处理获得option
+    var option={
+        allCHD:[15,100],
+        CHDTOPwidth:160,
+        CHDTopHeight:48,
+        CHDAllHeight:2000,
+        data:[{
+            id:156,
+            name:'张三',
+            dai:15,
+            children:[{
+                id:1521,
+                name:'张三1儿子',
+                dai:15,
+                children:[{
+                    id:152111,
+                    name:'张三11儿子',
+                    dai:16,
+                },{
+                    id:15232,
+                    name:'张三22儿子',
+                    dai:16,
+                },{
+                    id:15244,
+                    name:'张三33儿子',
+                    dai:16,
+                },{
+                    id:15265,
+                    name:'张三44儿子',
+                    dai:16,
+                }]
+            },{
+                id:1522,
+                name:'张三2儿子',
+                dai:153,
+            },{
+                id:1524,
+                name:'张三3儿子',
+                dai:15,
+            },{
+                id:1525,
+                name:'张三4儿子',
+                dai:15,
+            }]
+        }]
+    };
+
+    var graph = new Q.Graph(canvas);
+    var p = graph.toLogical(0, 0)
+    graph.zoomOut(p.x, p.y)
+    graph.zoomIn(p.x, p.y)
+    graph.limitedBounds = {x: 0, y: 0, width: (option.allCHD[1]-option.allCHD[0]+1)*option.CHDTOPwidth, height: option.CHDAllHeight}
+    graph.originAtCenter = false;
+
+    //重写滚轮事件  滚轮滚动 基于左上角放大缩小
+    graph.enableWheelZoom = false;
+    graph.onmousewheel = function (evt) {
+        var zoominDelta = evt.delta;
+        if (zoominDelta > 0) {
+            return this.zoomIn(0, 0);
+        }
+        return this.zoomOut(0, 0);
+    }
+    //锁定移动功能
+    graph.isMovable = function (item) {
+        return false;
+    }
+
+    function createShape( join,x, y,height){//画竖着的线
+        var shape = graph.createShapeNode(join, x, y);
+        shape.moveTo(0, 0);
+        shape.lineTo(0, height);
+        shape.setStyle(Q.Styles.SHAPE_STROKE, 1);
+        shape.setStyle(Q.Styles.SHAPE_STROKE_STYLE, "#e6e6e6");
+        shape.setStyle(Q.Styles.LAYOUT_BY_PATH, true);
+        shape.setStyle(Q.Styles.SHAPE_FILL_COLOR, null);
+        shape.setStyle(Q.Styles.LINE_CAP, Q.Consts.LINE_CAP_TYPE_BUTT);
+        shape.setStyle(Q.Styles.SELECTION_COLOR, "none");
+        shape.name="";
+    }
+
+    function creatLable(num,x,y,width,height) {//画多少多少代
+        var text = graph.createText("第"+num+"代",x,y);
+        text.setStyle(Q.Styles.LABEL_BACKGROUND_COLOR, (num%2==0?'#fafafa':"#f5f5f5"));
+        text.setStyle(Q.Styles.LABEL_COLOR, "#6d6d6d");
+        text.setStyle(Q.Styles.LABEL_PADDING, 0);
+        text.setStyle(Q.Styles.LABEL_FONT_SIZE, 16);
+        text.setStyle(Q.Styles.LABEL_RADIUS, 0);
+        text.setStyle(Q.Styles.LABEL_SIZE, new Q.Size(width, height));
+        text.setStyle(Q.Styles.SELECTION_COLOR, "none");
+    }
+
+    function creatLineTopBlock(option){//底层分格
+        for(var i=option.allCHD[0];i<=option.allCHD[1];i++){
+            creatLable(i,option.CHDTOPwidth/2+(i-option.allCHD[0])*option.CHDTOPwidth,option.CHDTopHeight/2,option.CHDTOPwidth,option.CHDTopHeight);
+            createShape(Q.Consts.LINE_JOIN_TYPE_BEVEL,(i-option.allCHD[0]+1)*option.CHDTOPwidth, 0,option.CHDAllHeight);
+        }
+    }
+
+    creatLineTopBlock(option);
 
 
+
+
+
+
+    //设置右上角缩略图显示
+    var overview = new Q.Overview(document.getElementById('overview'));
+    overview.setGraph( window.graph);
 </script>
 </body>
 </html>

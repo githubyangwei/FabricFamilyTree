@@ -17,14 +17,56 @@
 
 </div>
 
-<div id="btnOverview" title="Show Overview Panel" style="float: right;width: 100px;height: 100px;" class="btn btn-default btn-sm">
-    <div class="q-icon toolbar-overview"></div>
-</div>
+
 <script type="application/javascript" src="resource/jquery.min.js"></script>
 <script type="application/javascript" src="resource/commons/qunee.js"></script>
 <script type="application/javascript" src="resource/commons/common.js"></script>
 <script>
-
+    var option={
+        allCHD:[15,100],
+        CHDTOPwidth:160,
+        CHDTopHeight:48,
+        CHDAllHeight:2000,
+        data:[{
+            id:156,
+            name:'张三',
+            dai:15,
+            children:[{
+                id:1521,
+                name:'张三1儿子',
+                dai:15,
+                children:[{
+                    id:152111,
+                    name:'张三11儿子',
+                    dai:16,
+                },{
+                    id:15232,
+                    name:'张三22儿子',
+                    dai:16,
+                },{
+                    id:15244,
+                    name:'张三33儿子',
+                    dai:16,
+                },{
+                    id:15265,
+                    name:'张三44儿子',
+                    dai:16,
+                }]
+            },{
+                id:1522,
+                name:'张三2儿子',
+                dai:153,
+            },{
+                id:1524,
+                name:'张三3儿子',
+                dai:15,
+            },{
+                id:1525,
+                name:'张三4儿子',
+                dai:15,
+            }]
+        }]
+    };
 
 
 
@@ -40,7 +82,6 @@
     var qunee = graph.createNode("Qunee", 220, 0);
     qunee.anchorPosition = Q.Position.LEFT_TOP;
 
-    var edge = graph.createEdge("Hello\nQunee", hello, qunee);
     graph.enableWheelZoom = false;
 
     graph.onmousewheel = function (evt) {
@@ -51,27 +92,15 @@
         return this.zoomOut(0, 0);
     }
 
+/*
     graph.isMovable = function (item) {
         return item.name && item.name.indexOf('Q') === 0;
     }
+*/
 
 
 
-    var overview = new Q.Overview(document.getElementById('overview'));
-    overview.setGraph( window.graph);
-    $('#btnOverview').click(function () {
-        console.log(overview.visible)
-
-        var visible = !overview.visible;
-        console.log(visible)
-
-        overview.setVisible(visible);
-        overview.setGraph(visible ? window.graph : null);
-    })
-
-
-
-    function createShape( join,x, y,height){//线
+    function createShape( join,x, y,height){//画竖着的线
         var shape = graph.createShapeNode(join, x, y);
         shape.moveTo(0, 0);
         shape.lineTo(0, height);
@@ -85,38 +114,35 @@
         return shape;
     }
 
-
-
-
-    function creatLable(num,x,y,width,height) {
-        var text = graph.createText("第"+num+"代",x,y);//方块
+    function creatLable(num,x,y,width,height) {//画多少多少代
+        var text = graph.createText("第"+num+"代",x,y);
         text.setStyle(Q.Styles.LABEL_BACKGROUND_COLOR, (num%2==0?'#fafafa':"#f5f5f5"));
         text.setStyle(Q.Styles.LABEL_COLOR, "#6d6d6d");
         text.setStyle(Q.Styles.LABEL_PADDING, 0);
-        text.setStyle(Q.Styles.LABEL_ANCHOR_POSITION, Q.Position.RIGHT_TOP);
+        text.setStyle(Q.Styles.LABEL_FONT_SIZE, 16);
         text.setStyle(Q.Styles.LABEL_RADIUS, 0);
-
-        text.setStyle(Q.Styles.LABEL_POSITION, Q.Position.LEFT_TOP);
 
         text.setStyle(Q.Styles.LABEL_SIZE, new Q.Size(width, height));
         text.setStyle(Q.Styles.SELECTION_COLOR, "none");
     }
 
-    function creatLineTopBlock(option){
-        for(var i=1;i<=option.allCHD;i++){
-            creatLable(i,option.CHDTOPwidth/2+(i-1)*option.CHDTOPwidth,option.CHDTopHeight/2,option.CHDTOPwidth,option.CHDTopHeight);
-            createShape(Q.Consts.LINE_JOIN_TYPE_BEVEL,i*option.CHDTOPwidth, 0,option.CHDAllHeight);
+    function creatLineTopBlock(option){//底层分格
+        for(var i=option.allCHD[0];i<=option.allCHD[1];i++){
+            creatLable(i,option.CHDTOPwidth/2+(i-option.allCHD[0])*option.CHDTOPwidth,option.CHDTopHeight/2,option.CHDTOPwidth,option.CHDTopHeight);
+            createShape(Q.Consts.LINE_JOIN_TYPE_BEVEL,(i-option.allCHD[0]+1)*option.CHDTOPwidth, 0,option.CHDAllHeight);
         }
     }
 
-    var option={
-        allCHD:100,
-        CHDTOPwidth:160,
-        CHDTopHeight:48,
-        CHDAllHeight:10000
-    }
+    creatLineTopBlock(option);
 
-    creatLineTopBlock(option)
+
+
+
+
+
+    //设置右上角缩略图显示
+    var overview = new Q.Overview(document.getElementById('overview'));
+    overview.setGraph( window.graph);
 
 </script>
 </body>
