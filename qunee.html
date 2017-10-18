@@ -28,10 +28,6 @@
 
 
 
-    /* Q.name="Creat By BWDD";
-     Q.about="";
-     Q.copyright="";*/
-    var noMoveY = true;
     var graph = new Q.Graph(canvas);
     var p = graph.toLogical(0, 0)
     graph.zoomOut(p.x, p.y)
@@ -72,6 +68,56 @@
         overview.setVisible(visible);
         overview.setGraph(visible ? window.graph : null);
     })
+
+
+
+    function createShape( join,x, y,height){//线
+        var shape = graph.createShapeNode(join, x, y);
+        shape.moveTo(0, 0);
+        shape.lineTo(0, height);
+        shape.setStyle(Q.Styles.SHAPE_STROKE, 1);
+        shape.setStyle(Q.Styles.SHAPE_STROKE_STYLE, "#e6e6e6");
+        shape.setStyle(Q.Styles.LAYOUT_BY_PATH, true);
+        shape.setStyle(Q.Styles.SHAPE_FILL_COLOR, null);
+        shape.setStyle(Q.Styles.LINE_CAP, Q.Consts.LINE_CAP_TYPE_BUTT);
+        shape.setStyle(Q.Styles.SELECTION_COLOR, "none");
+        shape.name="";
+        return shape;
+    }
+
+
+
+
+    function creatLable(num,x,y,width,height) {
+        var text = graph.createText("第"+num+"代",x,y);//方块
+        text.setStyle(Q.Styles.LABEL_BACKGROUND_COLOR, (num%2==0?'#fafafa':"#f5f5f5"));
+        text.setStyle(Q.Styles.LABEL_COLOR, "#6d6d6d");
+        text.setStyle(Q.Styles.LABEL_PADDING, 0);
+        text.setStyle(Q.Styles.LABEL_ANCHOR_POSITION, Q.Position.RIGHT_TOP);
+        text.setStyle(Q.Styles.LABEL_RADIUS, 0);
+
+        text.setStyle(Q.Styles.LABEL_POSITION, Q.Position.LEFT_TOP);
+
+        text.setStyle(Q.Styles.LABEL_SIZE, new Q.Size(width, height));
+        text.setStyle(Q.Styles.SELECTION_COLOR, "none");
+    }
+
+    function creatLineTopBlock(option){
+        for(var i=1;i<=option.allCHD;i++){
+            creatLable(i,option.CHDTOPwidth/2+(i-1)*option.CHDTOPwidth,option.CHDTopHeight/2,option.CHDTOPwidth,option.CHDTopHeight);
+            createShape(Q.Consts.LINE_JOIN_TYPE_BEVEL,i*option.CHDTOPwidth, 0,option.CHDAllHeight);
+        }
+    }
+
+    var option={
+        allCHD:100,
+        CHDTOPwidth:160,
+        CHDTopHeight:48,
+        CHDAllHeight:10000
+    }
+
+    creatLineTopBlock(option)
+
 </script>
 </body>
 </html>

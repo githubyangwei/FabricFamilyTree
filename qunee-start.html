@@ -27,51 +27,6 @@
 
 
 
-
-    /* Q.name="Creat By BWDD";
-     Q.about="";
-     Q.copyright="";*/
-    var noMoveY = true;
-    var graph = new Q.Graph(canvas);
-    var p = graph.toLogical(0, 0)
-    graph.zoomOut(p.x, p.y)
-    graph.zoomIn(p.x, p.y)
-    graph.limitedBounds = {x: 0, y: 0, width: 100000, height: 100000}
-
-    graph.originAtCenter = false;
-    var hello = graph.createNode("Hello", 0, 0);
-    hello.anchorPosition = Q.Position.LEFT_TOP;
-    var qunee = graph.createNode("Qunee", 220, 0);
-    qunee.anchorPosition = Q.Position.LEFT_TOP;
-
-    var edge = graph.createEdge("Hello\nQunee", hello, qunee);
-    graph.enableWheelZoom = false;
-
-    graph.onmousewheel = function (evt) {
-        var zoominDelta = evt.delta;
-        if (zoominDelta > 0) {
-            return this.zoomIn(0, 0);
-        }
-        return this.zoomOut(0, 0);
-    }
-
-    graph.isMovable = function (item) {
-        return item.name && item.name.indexOf('Q') === 0;
-    }
-
-
-
-    var overview = new Q.Overview(document.getElementById('overview'));
-    overview.setGraph( window.graph);
-    $('#btnOverview').click(function () {
-        console.log(overview.visible)
-
-        var visible = !overview.visible;
-        console.log(visible)
-
-        overview.setVisible(visible);
-        overview.setGraph(visible ? window.graph : null);
-    })
 </script>
 </body>
 </html>
