@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .Q-CanvasPanel .Q-Canvas:nth-child(2) {
+            opacity: 0;
+        }
+    </style>
+</head>
+<body>
+<div style="position: relative;width: 800px;">
+    <div style="position: absolute; width: 800px;height:600px; top: 0px; bottom: 0px;border: 1px solid #ccc;" id="canvas"></div>
+
+    <div id="overview" style="width: 150px;height: 120px;box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.2);position: absolute;right: 5px;top: 5px;background-color: #FFF;"></div>
+
+</div>
+
+<div id="btnOverview" title="Show Overview Panel" style="float: right;width: 100px;height: 100px;" class="btn btn-default btn-sm">
+    <div class="q-icon toolbar-overview"></div>
+</div>
+<script type="application/javascript" src="resource/jquery.min.js"></script>
+<script type="application/javascript" src="resource/commons/qunee.js"></script>
+<script type="application/javascript" src="resource/commons/common.js"></script>
+<script>
+
+
+
+
+    /* Q.name="Creat By BWDD";
+     Q.about="";
+     Q.copyright="";*/
+    var noMoveY = true;
+    var graph = new Q.Graph(canvas);
+    var p = graph.toLogical(0, 0)
+    graph.zoomOut(p.x, p.y)
+    graph.zoomIn(p.x, p.y)
+    graph.limitedBounds = {x: 0, y: 0, width: 100000, height: 100000}
+
+    graph.originAtCenter = false;
+    var hello = graph.createNode("Hello", 0, 0);
+    hello.anchorPosition = Q.Position.LEFT_TOP;
+    var qunee = graph.createNode("Qunee", 220, 0);
+    qunee.anchorPosition = Q.Position.LEFT_TOP;
+
+    var edge = graph.createEdge("Hello\nQunee", hello, qunee);
+    graph.enableWheelZoom = false;
+
+    graph.onmousewheel = function (evt) {
+        var zoominDelta = evt.delta;
+        if (zoominDelta > 0) {
+            return this.zoomIn(0, 0);
+        }
+        return this.zoomOut(0, 0);
+    }
+
+    graph.isMovable = function (item) {
+        return item.name && item.name.indexOf('Q') === 0;
+    }
+
+
+
+    var overview = new Q.Overview(document.getElementById('overview'));
+    overview.setGraph( window.graph);
+    $('#btnOverview').click(function () {
+        console.log(overview.visible)
+
+        var visible = !overview.visible;
+        console.log(visible)
+
+        overview.setVisible(visible);
+        overview.setGraph(visible ? window.graph : null);
+    })
+</script>
+</body>
+</html>
