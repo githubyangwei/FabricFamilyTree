@@ -91,7 +91,7 @@
     //锁定移动功能
     graph.isMovable = function (item) {
 
-        return (item.nameS=="noMOve")?false:true;
+        return (item.nameS=="noMOVE")?false:true;
     }
 
     function createShape( join,x, y,height){//画竖着的线
@@ -105,7 +105,7 @@
         shape.setStyle(Q.Styles.LINE_CAP, Q.Consts.LINE_CAP_TYPE_BUTT);
         shape.setStyle(Q.Styles.SELECTION_COLOR, "none");
         shape.name="";
-        shape.nameS="noMOve";
+        shape.nameS="noMOVE";
     }
 
     function creatLable(num,x,y,width,height,allHeight) {//画多少多少代
@@ -117,7 +117,7 @@
         text.setStyle(Q.Styles.LABEL_RADIUS, 0);
         text.setStyle(Q.Styles.LABEL_SIZE, new Q.Size(width, height));
         text.setStyle(Q.Styles.SELECTION_COLOR, "none");
-        text.nameS="noMOve";
+        text.nameS="noMOVE";
 
         var text1 = graph.createText("第"+num+"代",x,allHeight/2+y);
         text1.setStyle(Q.Styles.LABEL_BACKGROUND_COLOR, "#fff");
@@ -127,7 +127,7 @@
         text1.setStyle(Q.Styles.LABEL_RADIUS, 0);
         text1.setStyle(Q.Styles.LABEL_SIZE, new Q.Size(width-1, allHeight-height));
         text1.setStyle(Q.Styles.SELECTION_COLOR, "none");
-        text1.nameS="noMOve";
+        text1.nameS="noMOVE";
     }
 
     function creatLineTopBlock(option){//底层分格
