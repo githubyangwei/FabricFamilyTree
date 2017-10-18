@@ -90,23 +90,25 @@
     }
     //锁定移动功能
     graph.isMovable = function (item) {
-        return false;
+
+        return (item.nameS=="noMOve")?false:true;
     }
 
     function createShape( join,x, y,height){//画竖着的线
         var shape = graph.createShapeNode(join, x, y);
         shape.moveTo(0, 0);
         shape.lineTo(0, height);
-        shape.setStyle(Q.Styles.SHAPE_STROKE, 1);
+        shape.setStyle(Q.Styles.SHAPE_STROKE, 2);
         shape.setStyle(Q.Styles.SHAPE_STROKE_STYLE, "#e6e6e6");
         shape.setStyle(Q.Styles.LAYOUT_BY_PATH, true);
         shape.setStyle(Q.Styles.SHAPE_FILL_COLOR, null);
         shape.setStyle(Q.Styles.LINE_CAP, Q.Consts.LINE_CAP_TYPE_BUTT);
         shape.setStyle(Q.Styles.SELECTION_COLOR, "none");
         shape.name="";
+        shape.nameS="noMOve";
     }
 
-    function creatLable(num,x,y,width,height) {//画多少多少代
+    function creatLable(num,x,y,width,height,allHeight) {//画多少多少代
         var text = graph.createText("第"+num+"代",x,y);
         text.setStyle(Q.Styles.LABEL_BACKGROUND_COLOR, (num%2==0?'#fafafa':"#f5f5f5"));
         text.setStyle(Q.Styles.LABEL_COLOR, "#6d6d6d");
@@ -115,11 +117,22 @@
         text.setStyle(Q.Styles.LABEL_RADIUS, 0);
         text.setStyle(Q.Styles.LABEL_SIZE, new Q.Size(width, height));
         text.setStyle(Q.Styles.SELECTION_COLOR, "none");
+        text.nameS="noMOve";
+
+        var text1 = graph.createText("第"+num+"代",x,allHeight/2+y);
+        text1.setStyle(Q.Styles.LABEL_BACKGROUND_COLOR, "#fff");
+        text1.setStyle(Q.Styles.LABEL_COLOR, "#fff");
+        text1.setStyle(Q.Styles.LABEL_PADDING, 0);
+        text1.setStyle(Q.Styles.LABEL_FONT_SIZE, 16);
+        text1.setStyle(Q.Styles.LABEL_RADIUS, 0);
+        text1.setStyle(Q.Styles.LABEL_SIZE, new Q.Size(width-1, allHeight-height));
+        text1.setStyle(Q.Styles.SELECTION_COLOR, "none");
+        text1.nameS="noMOve";
     }
 
     function creatLineTopBlock(option){//底层分格
         for(var i=option.allCHD[0];i<=option.allCHD[1];i++){
-            creatLable(i,option.CHDTOPwidth/2+(i-option.allCHD[0])*option.CHDTOPwidth,option.CHDTopHeight/2,option.CHDTOPwidth,option.CHDTopHeight);
+            creatLable(i,option.CHDTOPwidth/2+(i-option.allCHD[0])*option.CHDTOPwidth,option.CHDTopHeight/2,option.CHDTOPwidth,option.CHDTopHeight,option.CHDAllHeight);
             createShape(Q.Consts.LINE_JOIN_TYPE_BEVEL,(i-option.allCHD[0]+1)*option.CHDTOPwidth, 0,option.CHDAllHeight);
         }
     }
@@ -134,6 +147,8 @@
     //设置右上角缩略图显示
     var overview = new Q.Overview(document.getElementById('overview'));
     overview.setGraph( window.graph);
+
+    graph.navigationType = Q.Consts.NAVIGATION_BUTTON;
 </script>
 </body>
 </html>
