@@ -22,7 +22,7 @@ var ftt = {        //   ftt====>  formatToTree 缩写
         console.log(data);
 
     },
-    setX: function (data) {
+    setX: function (data) {//设置横向位置
         data = $.tool.JsonTool.prseTree(data, 'children');
         $.each(data, function (a, b) {
             if (b.NODE_NUMBER_UNIFY > bp.dynasty[1]) bp.dynasty[1] = b.NODE_NUMBER_UNIFY;
