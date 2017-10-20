@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .Q-CanvasPanel .Q-Canvas:nth-child(2) {
+            opacity: 0;
+        }
+    </style>
+</head>
+<body>
+<div style="position: relative;width: 800px;">
+    <div style="position: absolute; width: 800px;height:600px; top: 0px; bottom: 0px;border: 1px solid #ccc;" id="canvas"></div>
+
+    <div id="overview" style="width: 150px;height: 120px;box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.2);position: absolute;right: 5px;top: 5px;background-color: #FFF;"></div>
+
+</div>
+
+
+<script type="application/javascript" src="resource/jquery.min.js"></script>
+<script type="application/javascript" src="resource/commons/qunee.js"></script>
+<script type="application/javascript" src="resource/commons/common.js"></script>
+<script>
+    var graph = new Q.Graph("canvas");
+
+    function createNode(name, from){
+        var node = graph.createNode(name);
+        if(from){
+            graph.createEdge(from, node);
+        }
+        return node;
+    }
+    var root = createNode("R");
+    root.parentChildrenDirection = Q.Consts.DIRECTION_RIGHT;
+    var i = 0;
+    while(i++ < 3){
+        var node = createNode("" + i, root);
+        node.parentChildrenDirection = Q.Consts.DIRECTION_RIGHT;
+        node.layoutType = Q.Consts.LAYOUT_TYPE_EVEN_VERTICAL;
+        var j = 0;
+        while(j++ < 3){
+            createNode("" + i + "-" + j, node);
+        }
+    }
+
+    var layouter = new Q.TreeLayouter(graph);
+    layouter.layoutType = Q.Consts.LAYOUT_TYPE_EVEN_VERTICAL;
+    layouter.doLayout({callback: function(){
+        graph.zoomToOverview();
+    }});
+
+
+
+    //设置右上角缩略图显示
+    var overview = new Q.Overview(document.getElementById('overview'));
+    overview.setGraph( window.graph);
+
+</script>
+</body>
+</html>
