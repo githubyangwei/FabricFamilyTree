@@ -38,7 +38,7 @@ $.__proto__.tool={
      */
     getObjCookies: function(key) {
         var getCookies=LS.get(key);
-        if(toolFn.isEmpty(getCookies)){
+        if($.tool.isEmpty(getCookies)){
             getCookies=null;
         }else{
             getCookies=JSON.parse(getCookies);
@@ -99,7 +99,7 @@ $.__proto__.tool={
         theDateStr = y + "-" + m + "-" + date + "  " + hs + ":" + ms + ":" + ss + " 星期" + day;
         document.getElementById(idStr).innerHTML = theDateStr;
         // setTimeout 在执行时,是在载入后延迟指定时间后,去执行一次表达式,仅执行一次
-        window.setTimeout(function(){toolFn.showDT(idStr)}, 1000);
+        window.setTimeout(function(){$.tool.showDT(idStr)}, 1000);
     },
     /*
      * 名  称：    JsonTool
@@ -154,7 +154,7 @@ $.__proto__.tool={
             for (var a = 0; a < argument.length; a++) {
 
                 if (argument[a][key].length > 0) {
-                    var sc = toolFn.JsonTool.prseTree(argument[a][key], key);
+                    var sc = $.tool.JsonTool.prseTree(argument[a][key], key);
                     for (var i = 0; i < sc.length; i++) {
                         sp.push(sc[i]);
                     }

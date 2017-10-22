@@ -10,11 +10,10 @@
     </style>
 </head>
 <body>
-<div style="position: relative;width: 800px;">
+<div style="position: relative;width: 800px;left: 100px;">
     <div style="position: absolute; width: 800px;height:600px; top: 0px; bottom: 0px;border: 1px solid #ccc;" id="canvas"></div>
 
     <div id="overview" style="width: 150px;height: 120px;box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.2);position: absolute;right: -160px;top: 5px;background-color: #FFF;"></div>
-
 </div>
 
 <div id="btnOverview" title="Show Overview Panel" style="float: right;width: 100px;height: 100px;" class="btn btn-default btn-sm">
@@ -24,62 +23,44 @@
 <script src="resource/dataformat/jqTool.js"></script>
 <script type="application/javascript" src="resource/commons/qunee.js"></script>
 <script type="application/javascript" src="resource/commons/common.js"></script>
+<script src="resource/dataformat/format.js"></script>
+<script src="resource/dataformat/pedigree.js"></script>
+<script src="resource/svg/svgAll.js"></script>
+
 <script>
 
+    var bp = {                      //   bp====>  baseOption 缩写
+        dynasty: [0, 0],            //get           代的范围 便利分析得到
+        nodeWidth: 110,             //init          节点宽度 初始定义
+        nodeHeight: 100,            //init          节点高度 初始定义
+        dynastyWidth: 160,          //init          每代宽度 初始定义
+        canvasWidth: 800,           //Calculation   画布绘图区域宽度    计算得到
+        canvasHeight: 900,          //Calculation   画布绘图区域高度    计算的到
+        maxYnums: 0,                 //Calculation   最大Y值
+        data:""                      //Calculation    节点数据
+    }
+    $.get('resource/dataformat/data.js', function (resultData) {
+        console.log(resultData);
+        var listData = resultData[0].nodeTree;
+        listData.push(resultData[0].nodeFirst);
+        $.each(listData, function (a, b) {
+            b.children = ""
+        })
+        bp.data=ftt.format(listData);
+        creatLineTopBlock(bp);
+    }, "json");
+
     //数据处理获得option
-    var option={
-        allCHD:[15,100],
-        CHDTOPwidth:160,
-        CHDTopHeight:48,
-        CHDAllHeight:2000,
-        data:[{
-            id:156,
-            name:'张三',
-            dai:15,
-            children:[{
-                id:1521,
-                name:'张三1儿子',
-                dai:15,
-                children:[{
-                    id:152111,
-                    name:'张三11儿子',
-                    dai:16,
-                },{
-                    id:15232,
-                    name:'张三22儿子',
-                    dai:16,
-                },{
-                    id:15244,
-                    name:'张三33儿子',
-                    dai:16,
-                },{
-                    id:15265,
-                    name:'张三44儿子',
-                    dai:16,
-                }]
-            },{
-                id:1522,
-                name:'张三2儿子',
-                dai:153,
-            },{
-                id:1524,
-                name:'张三3儿子',
-                dai:15,
-            },{
-                id:1525,
-                name:'张三4儿子',
-                dai:15,
-            }]
-        }]
-    };
 
     var graph = new Q.Graph(canvas);
-    var p = graph.toLogical(0, 0)
-    graph.zoomOut(p.x, p.y)
-    graph.zoomIn(p.x, p.y)
-    graph.limitedBounds = {x: 0, y: 0, width: (option.allCHD[1]-option.allCHD[0]+1)*option.CHDTOPwidth, height: option.CHDAllHeight}
+    var p = graph.toLogical(0, 0);
+    graph.zoomOut(p.x, p.y);
+    graph.zoomIn(p.x, p.y);
+    graph.limitedBounds = {x: 0, y: 0, width: 100*160, height: 20000};
+/*
+    graph.limitedBounds = {x: 0, y: 0, width: 2000, height: 2000}
+*/
     graph.originAtCenter = false;
-
     //重写滚轮事件  滚轮滚动 基于左上角放大缩小
     graph.enableWheelZoom = false;
     graph.onmousewheel = function (evt) {
@@ -91,9 +72,12 @@
     }
     //锁定移动功能
     graph.isMovable = function (item) {
-
-        return (item.nameS=="noMOVE")?false:true;
+        return (item.nameS=="noClick"||item.nameS=="noMOVE")?false:true;
     }
+    graph.isSelectable = function (item) {
+        return (item.nameS=="noClick")?false:true;
+    }
+
 
     function createShape( join,x, y,height){//画竖着的线
         var shape = graph.createShapeNode(join, x, y);
@@ -106,7 +90,7 @@
         shape.setStyle(Q.Styles.LINE_CAP, Q.Consts.LINE_CAP_TYPE_BUTT);
         shape.setStyle(Q.Styles.SELECTION_COLOR, "none");
         shape.name="";
-        shape.nameS="noMOVE";
+        shape.nameS="noClick";
     }
 
     function creatLable(num,x,y,width,height,allHeight) {//画多少多少代
@@ -118,7 +102,7 @@
         text.setStyle(Q.Styles.LABEL_RADIUS, 0);
         text.setStyle(Q.Styles.LABEL_SIZE, new Q.Size(width, height));
         text.setStyle(Q.Styles.SELECTION_COLOR, "none");
-        text.nameS="noMOVE";
+        text.nameS="noClick";
 
         var text1 = graph.createText("第"+num+"代",x,allHeight/2+y);
         text1.setStyle(Q.Styles.LABEL_BACKGROUND_COLOR, "#fff");
@@ -128,17 +112,20 @@
         text1.setStyle(Q.Styles.LABEL_RADIUS, 0);
         text1.setStyle(Q.Styles.LABEL_SIZE, new Q.Size(width-1, allHeight-height));
         text1.setStyle(Q.Styles.SELECTION_COLOR, "none");
-        text1.nameS="noMOVE";
+        text1.nameS="noClick";
+
     }
 
-    function creatLineTopBlock(option){//底层分格
-        for(var i=option.allCHD[0];i<=option.allCHD[1];i++){
-            creatLable(i,option.CHDTOPwidth/2+(i-option.allCHD[0])*option.CHDTOPwidth,option.CHDTopHeight/2,option.CHDTOPwidth,option.CHDTopHeight,option.CHDAllHeight);
-            createShape(Q.Consts.LINE_JOIN_TYPE_BEVEL,(i-option.allCHD[0]+1)*option.CHDTOPwidth, 0,option.CHDAllHeight);
+    function creatLineTopBlock(option){//底层分格+设置节点
+        if(option.dynasty[1]-option.dynasty[0]<100)option.dynasty[1]=option.dynasty[0]+100;
+        for(var i=option.dynasty[0];i<=option.dynasty[1];i++){
+            creatLable(i,160/2+(i-option.dynasty[0])*160,48/2,160,48,20000);
+            createShape(Q.Consts.LINE_JOIN_TYPE_BEVEL,(i-bp.dynasty[0]+1)*160, 0,20000);
         }
+        CPC.creat(option);
     }
 
-    creatLineTopBlock(option);
+
 
 
 
@@ -148,6 +135,5 @@
 
     graph.navigationType = Q.Consts.NAVIGATION_BUTTON;
 </script>
-<script src="resource/dataformat/format.js"></script>
 </body>
 </html>
