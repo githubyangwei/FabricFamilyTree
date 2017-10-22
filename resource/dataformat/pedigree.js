@@ -4,6 +4,7 @@ var CPC={
     creat:function(option){
         this.drawNode(option);
 
+        this.bindClickFn();
     },
     //分步：画节点
     drawNode:function(option){
@@ -17,42 +18,23 @@ var CPC={
             text.setStyle(Q.Styles.LABEL_SIZE, new Q.Size(option.nodeWidth, option.nodeHeight));
             text.setStyle(Q.Styles.SELECTION_COLOR, "none");
             text.nameS="noMOVE";
-            var label2 = new Q.LabelUI();
-            label2.position = Q.Position.CENTER_TOP;
-            label2.anchorPosition = Q.Position.CENTER_BOTTOM;
-            label2.border = 1;
-            label2.padding = new Q.Insets(2, 5);
-            label2.showPointer = true;
-            label2.offsetY = -10;
-            label2.backgroundColor = "blue";
-            label2.fontSize = 16;
-            label2.fontStyle = "italic 100";
-            text.addUI(label2, [{
-                property : "label2",
-                propertyType : Q.Consts.PROPERTY_TYPE_CLIENT,
-                bindingProperty : "data"
-            }, {
-                property : "label2.color",
-                propertyType : Q.Consts.PROPERTY_TYPE_CLIENT,
-                bindingProperty : "color"
-            }]);
-            text.set("label2", "another label");
-            text.set("label2.color", "red");
-
+            text.set('data',nb);
+            CPC.drawFnPoint(text);
         })
         var getData=$.tool.JsonTool.toTree(option.data, 'NODE_ID', 'RELATION_RELATED_ID', 'children');
 
-        this.drawFnPoint(option,getData[0],getData[0].setX+55,getData[0].setY*100+100);
+        this.drawLine(option,getData[0],getData[0].setX+55,getData[0].setY*100+100);
     },
-    //分步：画功能点
-    drawFnPoint:function(option,data,x,y){
+    //分步：画线
+    drawLine:function(option,data,x,y){
         if(!$.tool.isEmpty(data.children)){
             $.each(data.children,function(la,lb){
                 CPC.twoPointToline(x,y,lb.setX-55,lb.setY*100+100);
-                CPC.drawFnPoint(option,lb,lb.setX+55,lb.setY*100+100);
+                CPC.drawLine(option,lb,lb.setX+55,lb.setY*100+100);
             })
         }
     },
+    //分步：亮点画线
     twoPointToline:function(x1,y1,x2,y2){
         console.log(x1,y1,x2,y2);
         var shape = graph.createShapeNode(Q.Consts.LINE_JOIN_TYPE_BEVEL, 0, 0);
@@ -71,12 +53,30 @@ var CPC={
         shape.name="";
         shape.nameS="noClick";
     },
-    //分步：画线
-    drawLine:function(graph,option){
-
+    //分步：画点击点
+    drawFnPoint:function(obj){
+        var objData=obj.get('data');
+        var addPoint = graph.createNode("", objData.setX-25,objData.setY*100+125);
+        addPoint.image = "add.svg";
+/*
+        addPoint.setStyle(Q.Styles.SELECTION_COLOR, "none");
+*/
+        addPoint.nameS="noMOVE";
+        addPoint.Fn='add';
+        addPoint.parent = obj;
     },
     //绑定点击事件
     bindClickFn:function(){
-
+        graph.onclick = function(evt){
+            var clickObj=evt.getData();
+            console.log(clickObj)
+            if(!$.tool.isEmpty(clickObj.Fn)){
+                var ClickType=clickObj.Fn;
+                console.log(ClickType)
+                if(ClickType=='add'){
+                    alert('点击了添加了！！！')
+                }
+            }
+        }
     }
 }

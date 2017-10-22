@@ -23,6 +23,8 @@
         var node = graph.createNode(name.substring(0, name.indexOf('.svg')), x, y);
         node.image = name;
 //        node.setStyle(Q.Styles.RENDER_COLOR, Q.randomColor())
+        node.setStyle(Q.Styles.IMAGE_BACKGROUND_COLOR, "#2898E0");
+        node.setStyle(Q.Styles.IMAGE_PADDING, 5);
         x += 100;
         if(x > 600){
             x = 0;
