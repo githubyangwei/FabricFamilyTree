@@ -31,7 +31,7 @@
         if (evt.kind == Q.InteractionEvent.ELEMENT_MOVING) {
             datas.forEach(function(data){
                 if(data instanceof Q.Node){
-                    data.y = oldLocation[data.id].y;
+                    data.y = graph.ty;
                 }
             })
 

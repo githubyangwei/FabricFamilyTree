@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hello Qunee for HTML5</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
+</head>
+<body style="margin: 0px">
+<div style="position: absolute; width: 800px;height: 600px; top: 0px; left: 100px;" id="canvas"></div>
+<script src="http://demo.qunee.com/lib/qunee-min.js"></script>
+<script>
+
+    var graph = new Q.Graph(canvas);
+    var p = graph.toLogical(0, 0);
+    graph.zoomOut(p.x, p.y);
+    graph.zoomIn(p.x, p.y);
+    graph.limitedBounds = {x: 0, y: 0, width: 100*160, height: 20000};
+    graph.minScale=0.5;
+    graph.maxScale=2;
+
+    graph.limitedBounds = {x: 0, y: 0, width: 2000, height: 2000}
+
+    //重写滚轮事件  滚轮滚动 基于左上角放大缩小
+    graph.enableWheelZoom = false;
+    graph.onmousewheel = function (evt) {
+        var zoominDelta = evt.delta;
+        if (zoominDelta > 0) {
+            return this.zoomIn(0, 0);
+        }
+        return this.zoomOut(0, 0);
+    }
+
+    //锁定移动功能
+    graph.isMovable = function (item) {
+        return (item.nameS=="noClick"||item.nameS=="noMOVE")?false:true;
+    }
+    graph.isSelectable = function (item) {
+        return (item.nameS=="noClick")?false:true;
+    }
+    graph.originAtCenter = false;
+    graph.delayedRendering = false;
+    var hello = graph.createNode("Hello", 200, 50);
+    var qunee = graph.createNode("Qunee", 200, 150);
+    var edge = graph.createEdge("Hello\nQunee", hello, qunee);
+
+    var nodesByCanvasLocation = {}
+    function createNodeByCanvasLocation(x, y){
+        var node = graph.createNode();
+        nodesByCanvasLocation[node.id] = node;
+        node.set('x', x);
+        node.set('y', y);
+    }
+
+    function createNodeAtCanvas(name, x, y){
+        var text1 = graph.createText("叫你哈师",x,y);
+
+        text1.setStyle(Q.Styles.LABEL_OFFSET_X, 50);;//
+        text1.setStyle(Q.Styles.LABEL_OFFSET_Y,40);//
+
+        text1.setStyle(Q.Styles.LABEL_BACKGROUND_COLOR, "#CCC");
+        text1.setStyle(Q.Styles.LABEL_COLOR, "#000");
+        text1.setStyle(Q.Styles.LABEL_PADDING, 0);
+        text1.setStyle(Q.Styles.LABEL_FONT_SIZE, 16);
+        text1.setStyle(Q.Styles.LABEL_RADIUS, 0);
+        text1.setStyle(Q.Styles.LABEL_SIZE, new Q.Size(100,80));
+        text1.setStyle(Q.Styles.SELECTION_COLOR, "none");
+        text1.nameS="noClick";
+        text1.set('location', {x: x, y: y});
+        graph.callLater(function(){updateLocation(text1)})
+        return text1;
+    }
+
+    var nodeAtCanvas = createNodeAtCanvas('node at - 100, 100', 0, 0);
+    var nodeAtCanvasSSS = createNodeAtCanvas('node at - 100, 200',100, 0);
+    nodeAtCanvasSSS.parent=nodeAtCanvas
+    function updateLocation(node){
+        var location = node.get('location');
+        if(!location){
+            return;
+        }
+        var xy = graph.toLogical(location.x, location.y);
+        node.x = node.x;
+        node.y = xy.y;
+    }
+
+    graph.propertyChangeDispatcher.addListener(function(evt){
+        if(evt.kind == 'transform'){
+            updateLocation(nodeAtCanvas);
+        }
+    });
+
+   /* graph.interactionDispatcher.addListener(function (evt) {
+        var data = evt.data;//当前鼠标点位置的图元
+        var datas = evt.datas; //所有拖动的图元
+        if (evt.kind == Q.InteractionEvent.ELEMENT_MOVING || evt.kind == Q.InteractionEvent.ELEMENT_MOVE_END) {
+
+            datas.forEach(function(data){
+                if(data == nodeAtCanvas){
+                    var xy = graph.toCanvas(data.x, data.y)
+                    nodeAtCanvas.set('location', xy);
+                    nodeAtCanvas.name = 'node at - ' + (xy.x | 0) + ', ' + (xy.y | 0);
+                }
+            })
+        }
+    })*/
+
+</script>
+</body>
+</html>
