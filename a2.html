@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<canvas id="c" width="1000px" height="700px" style="border:1px solid #aaa"></canvas>
+
+</body>
+<script type="application/javascript"
+        src="https://ss1.bdstatic.com/5eN1bjq8AAUYm2zgoY3K/r/www/cache/static/protocol/https/jquery/jquery-1.10.2.min_65682a2.js"></script>
+<script type="application/javascript" src="dist/fabric.min.js"></script>
+<script>
+    var panelNum = 1000;
+    var canvas = this.__canvas = new fabric.Canvas('c');
+
+    function creatBlocks(num) {
+        var Rect1 = new fabric.Rect({
+            top: 0, left: 80 * (num - 1), width: 80, height: 50, fill: (num%2==0?'#fafafa':"#f5f5f5")
+        }).set('selectable', false);
+        var Rect11 = new fabric.Rect({
+            top: 50, left: 80 * (num - 1), width: 80, height: 50, fill: '#fff'
+        }).set('selectable', false);
+        var path = new fabric.Line([80 * num, 0, 80 * num, 20000], {
+            fill: '#e6e6e6',
+            stroke: '#e6e6e6',
+            strokeWidth: 1,
+            selectable: false
+        }).set('selectable', false);
+        var text = new fabric.Text('第' + num + '代', {
+            left: 80 * (num - 1) + 16,
+            top: 16,
+            textAlign: 'center',
+            scaleX: 0.1,
+            scaleY: 0.1,
+            fontSize: '160',
+        }).set('selectable', false);
+        canvas.add(Rect1, Rect11, path, text);
+    }
+    for(var i=1;i<panelNum;i++){
+        creatBlocks(i);
+    }
+
+    var textONE = new fabric.Text('哈哈哈哈哈', {
+        left: 16,
+        top: 100,
+        textAlign: 'center',
+        width: 80,
+        scaleX: 0.1,
+        scaleY: 0.1,
+        fontSize: '160',
+        id:213215456,
+        thisType:'showName'
+    }).set('selectable', false);
+    canvas.add(textONE);
+    canvas.on('mouse:down', function(options) {
+        if (options.target) {
+            if(options.target.thisType=='showName'){
+                alert(options.target.id)
+            }
+        }
+    });
+
+
+
+
+    //设置放大缩小
+    var scale = 1;
+
+    function handle(delta) {
+        var s = delta + ": ";
+        if (delta < 0)
+            scale -= 0.1;
+        else
+            scale += 0.1;
+        if(scale<=0.4)scale=0.4
+        if(scale>=2.6)scale=2.6
+        canvas.setZoom(scale);
+    }//from www.fengfly.com
+    function wheel(event) {
+        var delta = 0;
+        if (!event) event = window.event;
+        if (event.wheelDelta) {
+            delta = event.wheelDelta / 120;
+            if (window.opera) delta = -delta;
+        } else if (event.detail) {
+            delta = -event.detail / 3;
+        }
+        if (delta)
+            handle(delta);
+    }
+
+    $('.canvas-container').on('mouseenter', function () {
+        windowScroll()
+    }).on('mouseout', function () {
+        noScroll()
+    })
+
+    function windowScroll() {
+        if (window.addEventListener) window.addEventListener('DOMMouseScroll', wheel, false);
+        window.onmousewheel = document.onmousewheel = wheel;
+    }
+
+    function noScroll() {
+        if (window.addEventListener) window.addEventListener('DOMMouseScroll', function () {
+        }, false);
+        window.onmousewheel = document.onmousewheel = function () {
+        };
+    }
+</script>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div style="position: absolute; width: 800px;height:600px; top: 0px; bottom: 0px;border: 1px solid #ccc;" id="canvas"></div>
+
+</body>
+<script type="application/javascript" src="resource/jquery-1.12.4.js"></script>
+<script type="application/javascript" src="resource/commons/qunee.js"></script>
+<script type="application/javascript" src="resource/commons/common.js"></script>
+
+<script>
+    if(!window.getI18NString){getI18NString = function(s){return s;}}
+
+    var graph = new Q.Graph('canvas');
+    var a = graph.createNode("A", -100, -200);
+    var b = graph.createNode("B", 100, -50);
+    var edge = graph.createEdge(a, b);
+    edge.setStyle(Q.Styles.EDGE_COLOR, 'rgba(253,120,51,1)');
+    edge.addPathSegment([0, -200]);
+    edge.addPathSegment([0, -50]);
+    edge.setStyle(Q.Styles.ARROW_FROM, Q.Consts.SHAPE_CIRCLE);
+    edge.setStyle(Q.Styles.EDGE_FROM_OFFSET,{x: 20});
+    edge.setStyle(Q.Styles.EDGE_TO_OFFSET,{x: -20});
+
+    edge.setStyle(Q.Styles.ARROW_FROM_FILL_COLOR, "#fff");
+    edge.setStyle(Q.Styles.ARROW_FROM_SIZE, {width: 8, height: 8});
+    edge.setStyle(Q.Styles.ARROW_TO_SIZE, {width: 8, height: 8});
+    edge.setStyle(Q.Styles.ARROW_TO, Q.Consts.SHAPE_CIRCLE);
+    edge.setStyle(Q.Styles.ARROW_TO_FILL_COLOR, "#fff");
+    edge.setStyle(Q.Styles.EDGE_CORNER_RADIUS, 0);
+    edge.setStyle(Q.Styles.EDGE_WIDTH, 2);
+    edge.edgeType = Q.Consts.EDGE_TYPE_VERTICAL_HORIZONTAL;
+
+
+
+    var hello = graph.createNode("Hello", -160, -80);
+    var qunee = graph.createNode("Qunee", 160, 80);
+    var edge = graph.createEdge("Hello\nQunee", hello, qunee);
+    edge.setStyle(Q.Styles.ARROW_FROM, Q.Consts.SHAPE_CIRCLE);
+    edge.setStyle(Q.Styles.ARROW_FROM_FILL_COLOR, "#2898E0");
+    edge.setStyle(Q.Styles.ARROW_FROM_FILL_GRADIENT, Q.Gradient.LINEAR_GRADIENT_HORIZONTAL);
+    edge.setStyle(Q.Styles.ARROW_FROM_SIZE, {width: 30, height: 30});
+</script>
+</html>

@@ -5,108 +5,339 @@
     <title>Title</title>
 </head>
 <body>
-<canvas id="c" width="1000px" height="700px" style="border:1px solid #aaa"></canvas>
+<div style="position: absolute; width: 800px;height:600px; top: 0px; bottom: 0px;border: 1px solid #ccc;" id="canvas"></div>
 
 </body>
-<script type="application/javascript"
-        src="https://ss1.bdstatic.com/5eN1bjq8AAUYm2zgoY3K/r/www/cache/static/protocol/https/jquery/jquery-1.10.2.min_65682a2.js"></script>
-<script type="application/javascript" src="dist/fabric.min.js"></script>
+<script type="application/javascript" src="resource/jquery-1.12.4.js"></script>
+<script type="application/javascript" src="resource/jqTool.js"></script>
+<script type="application/javascript" src="resource/a.js"></script>
+<script type="application/javascript" src="resource/commons/qunee.js"></script>
+<script type="application/javascript" src="resource/commons/common.js"></script>
+
 <script>
-    var panelNum = 1000;
-    var canvas = this.__canvas = new fabric.Canvas('c');
+    /**
+     * This file is part of Qunee for HTML5.
+     * Copyright (c) 2016 by qunee.com
+     **/
+    if(!window.getI18NString){getI18NString = function(s){return s;}}
 
-    function creatBlocks(num) {
-        var Rect1 = new fabric.Rect({
-            top: 0, left: 80 * (num - 1), width: 80, height: 50, fill: (num%2==0?'#fafafa':"#f5f5f5")
-        }).set('selectable', false);
-        var Rect11 = new fabric.Rect({
-            top: 50, left: 80 * (num - 1), width: 80, height: 50, fill: '#fff'
-        }).set('selectable', false);
-        var path = new fabric.Line([80 * num, 0, 80 * num, 20000], {
-            fill: '#e6e6e6',
-            stroke: '#e6e6e6',
-            strokeWidth: 1,
-            selectable: false
-        }).set('selectable', false);
-        var text = new fabric.Text('第' + num + '代', {
-            left: 80 * (num - 1) + 16,
-            top: 16,
-            textAlign: 'center',
-            scaleX: 0.1,
-            scaleY: 0.1,
-            fontSize: '160',
-        }).set('selectable', false);
-        canvas.add(Rect1, Rect11, path, text);
-    }
-    for(var i=1;i<panelNum;i++){
-        creatBlocks(i);
+    var graph = new Q.Graph('canvas');
+    var p = graph.toLogical(0, 0);
+    graph.zoomOut(p.x, p.y);
+    graph.zoomIn(p.x, p.y);
+    graph.minScale = 0.5
+    graph.maxScale = 2
+    graph.delayedRendering = false;
+    function ExpandableNode() {
+        Q.doSuperConstructor(this, ExpandableNode, arguments);
+        this.size = {width: 25};
+        this.setStyle(Q.Styles.LABEL_ON_TOP, true);
+        this._invalidateExpandedStatus();
     }
 
-    var textONE = new fabric.Text('哈哈哈哈哈', {
-        left: 16,
-        top: 100,
-        textAlign: 'center',
-        width: 80,
-        scaleX: 0.1,
-        scaleY: 0.1,
-        fontSize: '160',
-        id:213215456,
-        thisType:'showName'
-    }).set('selectable', false);
-    canvas.add(textONE);
-    canvas.on('mouse:down', function(options) {
-        if (options.target) {
-            if(options.target.thisType=='showName'){
-                alert(options.target.id)
+    var LOAD_STATUS_PENDING = 'pending';
+    var LOAD_STATUS_LOADING = 'loading';
+    var LOAD_STATUS_LOADED = 'loaded';
+    var LOAD_STATUS_ERROR = 'error';
+
+    ExpandableNode.prototype = {
+        $expanded: false,
+        loadable: true,
+        _loadStatus: LOAD_STATUS_PENDING,
+        _setLoadStatus: function (v) {
+            if (this._loadStatus == v) {
+                return;
+            }
+            this._loadStatus = v;
+            this._invalidateExpandedStatus();
+
+        },
+        _canLoad: function () {
+            return this.loadable && (this.loadStatus == LOAD_STATUS_PENDING || this.loadStatus == LOAD_STATUS_ERROR);
+        },
+        _loadData: function (callback) {
+            this.loadStatus = LOAD_STATUS_LOADING;
+            this._doLoadData(function () {
+                this.loadStatus = LOAD_STATUS_LOADED;
+                if (callback) {
+                    callback();
+                }
+            }.bind(this), function () {
+                this.expanded = false;
+                this.loadStatus = LOAD_STATUS_ERROR;
+            }.bind(this))
+        },
+        _doLoadData: function (onSuccess, onError) {
+            var nodeWidth;
+            /* if (this.size && this.size.width) {
+                 nodeWidth = this.size.width - 8;
+             } else {*/
+            nodeWidth = 50;
+            /*  }*/
+            var datas=this.get('data');
+            var THIS=this;
+            $.each(datas.children,function(cx,cy){
+               /* if(nodeWidth < 50 && Q.randomInt(10) > 7){
+                    onError();
+                    return;
+                }
+                var i = 3 + Q.randomInt(5);*/
+                    var node = createNode('C-' + cy.NODE_NAME, THIS);
+                    node.size = {width: 50};
+                    node.set('data',cy);
+                    node.loadable = true;
+                    onSuccess();
+            })
+            /*setTimeout(function () {
+                console.log(this.get('data'));
+                if(nodeWidth < 50 && Q.randomInt(10) > 7){
+                    onError();
+                    return;
+                }
+                var i = 3 + Q.randomInt(5);
+                while (i-- > 0) {
+                    var node = createNode('C-' + i, this);
+                    node.size = {width: nodeWidth}
+                    node.loadable = nodeWidth > 20 && Q.randomBool();
+                }
+                onSuccess();
+            }.bind(this), 1000)*/
+        },
+        onChildAdd: function (child, index) {
+            this._invalidateExpandedStatus();
+        },
+        onChildRemove: function (child) {
+            this._invalidateExpandedStatus();
+        },
+        getExpandImage: function () {
+            var hasChildren = this.hasChildren();
+            var expanded = this.expanded;
+            var loadStatus = this.loadStatus;
+            if (!this.loadable || loadStatus == LOAD_STATUS_LOADED) {
+                if (!hasChildren) {
+                    return null;
+                }
+                return expanded ? 'resource/svg/more.svg' : 'resource/svg/less.svg';
+            }
+            if (loadStatus == LOAD_STATUS_PENDING) {
+                return 'resource/svg/more.svg';
+            }
+            if (loadStatus == LOAD_STATUS_LOADING) {
+                return 'resource/svg/unknown.svg';
+            }
+            if (loadStatus == LOAD_STATUS_ERROR) {
+                return 'resource/svg/less.svg';
+            }
+            return null;
+        },
+        checkChildrenVisibilty: function () {
+            function checkChildren() {
+                var visible = this.visible !== false && this.expanded;
+                this.forEachChild(function (child) {
+                    child.visible = visible;
+                    checkChildren.call(child);
+                })
+            }
+
+            checkChildren.call(this)
+        },
+        _findExpandHandler: function(){
+            if(this.expandHandler){
+                return this.expandHandler;
+            }
+            if(this.bindingUIs){
+                var result;
+                this.bindingUIs.forEach(function(ui){
+                    ui = ui.ui;
+                    Q.log(ui.name)
+                    if(ui.name == 'expandHandler'){
+                        result = ui;
+                        return false;
+                    }
+                })
+                return this.expandHandler = result;
+            }
+            return null;
+        },
+        _validateExpandedStatus: function (callback) {
+            this.$expandedInvalidateFlag = false;
+
+            if (this.expanded && this._canLoad()) {
+                this._loadData(callback);
+                callback = null;
+            }
+            var icon = this.getExpandImage();
+            var expandHandler = this._findExpandHandler();
+
+            if (!icon) {
+                if (expandHandler) {
+                    expandHandler.visible = false;
+                    this.invalidate();
+                }
+                return;
+            }
+            if (!expandHandler) {
+                expandHandler = new Q.ImageUI();
+                expandHandler.shadowBlur = 3;
+                expandHandler.shadowColor = '#888'
+                expandHandler.position = Q.Position.RIGHT_TOP;
+                expandHandler.anchorPosition = Q.Position.LEFT_TOP;
+                expandHandler.offsetX = -10;
+                expandHandler.fontSize = 11;
+                expandHandler.showOnTop = true;
+                expandHandler.name = 'expandHandler';
+                this.expandHandler = expandHandler;
+                this.addUI(expandHandler);
+            }
+            expandHandler.data = icon;
+            expandHandler.visible = true;
+            this.checkChildrenVisibilty();
+            this.invalidate();
+            if (callback) {
+                callback();
+            }
+        },
+        _invalidateExpandedStatus: function (callback) {
+            if (this.$expandedInvalidateFlag) {
+                return;
+            }
+            this.$expandedInvalidateFlag = true;
+            Q.nextFrame(this._validateExpandedStatus.bind(this, callback))
+        },
+        setExpandedAndLoad: function (expanded, callback) {
+            if (this.expanded == expanded) {
+                return;
+            }
+            var old = this.$expanded;
+            this.$expanded = expanded;
+            this.onEvent(new Q.PropertyChangeEvent(this, "expanded", expanded, old));
+            this._invalidateExpandedStatus(callback);
+        }
+    }
+    Q.extend(ExpandableNode, Q.Node);
+    Object.defineProperties(ExpandableNode.prototype, {
+        loadStatus: {
+            get: function () {
+                return this._loadStatus;
+            },
+            set: function (v) {
+                this._setLoadStatus(v);
+            }
+        },
+        expanded: {
+            get: function () {
+                return this.$expanded;
+            },
+            set: function (v) {
+                this.setExpandedAndLoad(v);
+            }
+        },
+        visible: {
+            get: function () {
+                return this._visible !== false;
+            },
+            set: function (v) {
+                if (this.visible === v) {
+                    return;
+                }
+                this._visible = v;
+                this.invalidateVisibility();
+                this.invalidate();
             }
         }
-    });
-
-
-
-
-    //设置放大缩小
-    var scale = 1;
-
-    function handle(delta) {
-        var s = delta + ": ";
-        if (delta < 0)
-            scale -= 0.1;
-        else
-            scale += 0.1;
-        if(scale<=0.4)scale=0.4
-        if(scale>=2.6)scale=2.6
-        canvas.setZoom(scale);
-    }//from www.fengfly.com
-    function wheel(event) {
-        var delta = 0;
-        if (!event) event = window.event;
-        if (event.wheelDelta) {
-            delta = event.wheelDelta / 120;
-            if (window.opera) delta = -delta;
-        } else if (event.detail) {
-            delta = -event.detail / 3;
-        }
-        if (delta)
-            handle(delta);
-    }
-
-    $('.canvas-container').on('mouseenter', function () {
-        windowScroll()
-    }).on('mouseout', function () {
-        noScroll()
     })
 
-    function windowScroll() {
-        if (window.addEventListener) window.addEventListener('DOMMouseScroll', wheel, false);
-        window.onmousewheel = document.onmousewheel = wheel;
+    if(Q.loadClassPath){
+        Q.ExpandableNode = ExpandableNode;
+        Q.loadClassPath(ExpandableNode, 'Q.ExpandableNode');
+        ExpandableNode.prototype.addOutProperty('visible');
+        ExpandableNode.prototype.addOutProperty('loadStatus');
+        ExpandableNode.prototype.addOutProperty('expanded');
     }
 
-    function noScroll() {
-        if (window.addEventListener) window.addEventListener('DOMMouseScroll', function () {
-        }, false);
-        window.onmousewheel = document.onmousewheel = function () {
-        };
+    graph.onclick = function (evt) {
+        var data = evt.getData();
+        if (data instanceof ExpandableNode) {
+            var target = graph.hitTest(evt);
+            if (target && target.name == 'expandHandler') {
+                var oldLocation = {x: data.x, y: data.y};
+                data.setExpandedAndLoad(!data.expanded, function () {
+                    doLayout({
+                        callback: function () {
+                            var dx = data.x - oldLocation.x;
+                            var dy = data.y - oldLocation.y;
+                            dx *= graph.scale;
+                            dy *= graph.scale;
+                            graph.translate(-dx, -dy, false)
+                        }
+                    })
+                });
+            }
+        }
     }
+
+    function createNode(name, from, edgeType) {
+        var node = new ExpandableNode(name);
+        node.size = {width: 30}
+        graph.addElement(node);
+        if (from) {
+            node.parent = node.host = from;
+            var edge = createEdge(from, node);
+            edge.edgeType = edgeType || Q.Consts.EDGE_TYPE_VERTICAL_HORIZONTAL;
+
+        }
+        return node;
+    }
+
+    function createEdge(from, to) {
+        var edge = graph.createEdge(from, to);
+        edge.setStyle(Q.Styles.ARROW_TO, false);
+        edge.setStyle(Q.Styles.ARROW_FROM_FILL_COLOR, "rgba(253,120,51,1)");
+        edge.setStyle(Q.Styles.ARROW_TO_FILL_COLOR, "rgba(253,120,51,1)");
+
+        return edge;
+    }
+    var datas=$.tool.JsonTool.toTree(Conts, 'NODE_ID','RELATION_RELATED_ID','children')
+    var layouter = new Q.TreeLayouter(graph);
+    layouter.hGap = 10;
+    layouter.vGap = 20;
+
+    function doLayout(options) {
+        layouter.doLayout(options)
+    }
+$.each(datas,function(a,b){
+    var root = createNode(b.NODE_NAME);
+    root.size = {width: 50}
+    root.parentChildrenDirection = Q.Consts.DIRECTION_RIGHT_BOTTOM;
+    root.hGap = 30;
+    root.set('data',b);
+
+
+
+    doLayout({
+        callback: function () {
+            graph.moveToCenter()
+        }
+    })
+})
+
+    /*var root = createNode('Root');
+    root.size = {width: 50}
+    root.parentChildrenDirection = Q.Consts.DIRECTION_RIGHT_BOTTOM;
+    root.hGap = 30;
+
+    var layouter = new Q.TreeLayouter(graph);
+    layouter.hGap = 10;
+    layouter.vGap = 20;
+
+    function doLayout(options) {
+        layouter.doLayout(options)
+    }
+
+    doLayout({
+        callback: function () {
+            graph.moveToCenter()
+        }
+    })*/
 </script>
 </html>
