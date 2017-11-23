@@ -278,7 +278,7 @@
 
     function createNode(name, from, edgeType) {
         var node = new ExpandableNode(name);
-        node.size = {width: 30}
+        node.size = {width: 130}
         graph.addElement(node);
         if (from) {
             node.parent = node.host = from;
@@ -291,9 +291,13 @@
 
     function createEdge(from, to) {
         var edge = graph.createEdge(from, to);
+
         edge.setStyle(Q.Styles.ARROW_TO, false);
-        edge.setStyle(Q.Styles.ARROW_FROM_FILL_COLOR, "rgba(253,120,51,1)");
-        edge.setStyle(Q.Styles.ARROW_TO_FILL_COLOR, "rgba(253,120,51,1)");
+        edge.setStyle(Q.Styles.EDGE_COLOR, "#ff6600");
+        edge.setStyle(Q.Styles.ARROW_FROM_FILL_GRADIENT, Q.Gradient.LINEAR_GRADIENT_HORIZONTAL);
+        edge.setStyle(Q.Styles.ARROW_FROM_SIZE, {width: 30, height: 30});
+/*        edge.setStyle(Q.Styles.ARROW_FROM_FILL_COLOR, "red");
+        edge.setStyle(Q.Styles.ARROW_TO_FILL_COLOR, "red");*/
 
         return edge;
     }
